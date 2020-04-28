@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Cencor</string>
+    <string name="alarm_button">Alarm</string>
+    <string name="shake_it_button">Shaky</string>
+    <string name="Sleep_button">Sleepy</string>
+    <string name="shaky_enable_switch">Enable Shaky</string>
+    <string name="shaky_activity_title">Shaky</string>
+    <string name="shaky_description">Enable shaky below to turn on your phone\'s screen with shaking it!</string>
+</resources>

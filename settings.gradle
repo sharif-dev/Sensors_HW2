@@ -1,0 +1,2 @@
+rootProject.name='Cencor'
+include ':app'
