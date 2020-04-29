@@ -6,4 +6,7 @@
     <string name="shaky_enable_switch">Enable Shaky</string>
     <string name="shaky_activity_title">Shaky</string>
     <string name="shaky_description">Enable shaky below to turn on your phone\'s screen with shaking it!</string>
+    <string name="sleepy_enable_switch">Enable Sleepy</string>
+    <string name="sleepy_activity_title">Sleepy</string>
+    <string name="sleepy_description">Enable sleepy below to lock your phone when faced downwards!</string>
 </resources>

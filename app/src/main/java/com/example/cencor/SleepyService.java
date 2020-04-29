@@ -11,16 +11,14 @@ import android.os.PowerManager;
 
 import androidx.annotation.Nullable;
 
-public class ShakyService extends Service implements SensorEventListener {
+public class SleepyService extends Service implements SensorEventListener {
 
-    float xAcc, yAcc, zAcc;
-    float xPreAcc, yPreAcc, zPreAcc;
+    float zAcc;
+    float zPreAcc;
 
     boolean enable = false;
-    boolean firstUpdate = true;
-    boolean shakeInitiated = false;
 
-    float shakeThreshold = 12.5f;
+    float sleepThreshold = 2;
 
     Sensor accelerometer;
     SensorManager sm;
@@ -43,17 +41,15 @@ public class ShakyService extends Service implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        updateAccelParameters(event.values[0], event.values[1], event.values[2]);
+        zAcc = event.values[2];
 
-        if(!shakeInitiated && isAccelerationChanged() && enable){
-            shakeInitiated = true;
-        } else if (shakeInitiated && isAccelerationChanged() && enable)
+        if (isFacedDownwards() && enable)
         {
-            executeShakeAction();
+            executeSleepAction();
         }
     }
 
-    private void executeShakeAction() {
+    private void executeSleepAction() {
         PowerManager powerManager = (PowerManager) this.getSystemService(this.POWER_SERVICE);
         PowerManager.WakeLock  wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK |
                 PowerManager.ACQUIRE_CAUSES_WAKEUP |
@@ -64,31 +60,9 @@ public class ShakyService extends Service implements SensorEventListener {
         wakeLock.release();
     }
 
-    private boolean isAccelerationChanged() {
+    private boolean isFacedDownwards() {
 
-        float deltaX = Math.abs(xPreAcc - xAcc);
-        float deltaY = Math.abs(yPreAcc - yAcc);
-        float deltaZ = Math.abs(zPreAcc - zAcc);
-
-        return ((deltaX > shakeThreshold && deltaY > shakeThreshold) || (deltaZ > shakeThreshold && deltaY > shakeThreshold) || (deltaX > shakeThreshold && deltaZ > shakeThreshold));
-    }
-
-    private void updateAccelParameters(float xNewAcc, float yNewAcc, float zNewAcc) {
-        if(firstUpdate)
-        {
-            xPreAcc = xNewAcc;
-            yPreAcc = yNewAcc;
-            zPreAcc = zNewAcc;
-            firstUpdate = false;
-        }else{
-            xPreAcc = xAcc;
-            yPreAcc = yAcc;
-            zPreAcc = zAcc;
-        }
-
-        xAcc = xNewAcc;
-        yAcc = xNewAcc;
-        zAcc = zNewAcc;
+        return (zAcc + 10 < sleepThreshold);
     }
 
     @Override
