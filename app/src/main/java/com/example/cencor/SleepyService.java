@@ -1,6 +1,8 @@
 package com.example.cencor;
 
 import android.app.Service;
+import android.app.admin.DevicePolicyManager;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -50,14 +52,8 @@ public class SleepyService extends Service implements SensorEventListener {
     }
 
     private void executeSleepAction() {
-        PowerManager powerManager = (PowerManager) this.getSystemService(this.POWER_SERVICE);
-        PowerManager.WakeLock  wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK |
-                PowerManager.ACQUIRE_CAUSES_WAKEUP |
-                PowerManager.ON_AFTER_RELEASE, "appname::WakeLock");
-
-        wakeLock.acquire();
-
-        wakeLock.release();
+        DevicePolicyManager devicePolicyManager = (DevicePolicyManager) getSystemService(DEVICE_POLICY_SERVICE);
+        devicePolicyManager.lockNow();
     }
 
     private boolean isFacedDownwards() {
