@@ -8,6 +8,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
 
@@ -20,15 +21,40 @@ public class SleepyService extends Service implements SensorEventListener {
 
     boolean enable = false;
 
-    float sleepThreshold = 2;
+    float sleepThreshold = 1;
 
     Sensor accelerometer;
     SensorManager sm;
 
+    private final IBinder connectBinder = new LocalBinder();
+
+    public class LocalBinder extends Binder {
+        SleepyService getService(){
+            return SleepyService.this;
+        }
+    }
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return connectBinder;
+    }
+
+
+    public void setEnable(){
+        enable = true;
+    }
+
+    public void setUnable(){
+        enable = false;
+    }
+
+    public boolean getEnable(){
+        return enable;
+    }
+
+    public void setSleepThreshold(int threshold){
+        sleepThreshold = 11 - threshold/10;
     }
 
     @Override

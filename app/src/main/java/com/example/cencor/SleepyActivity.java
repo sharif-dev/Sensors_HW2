@@ -7,11 +7,15 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -22,6 +26,8 @@ public class SleepyActivity extends AppCompatActivity{
     private DevicePolicyManager devicePolicyManager;
     private ActivityManager activityManager;
     private ComponentName componentName;
+    SleepyService sleepyService;
+    boolean isBound = false;
 
     Intent intent;
     @Override
@@ -34,8 +40,29 @@ public class SleepyActivity extends AppCompatActivity{
         componentName = new ComponentName(this, LockAdmin.class);
 
         intent = new Intent(SleepyActivity.this, SleepyService.class);
+        bindService(intent, sleepyConnection, Context.BIND_AUTO_CREATE);
+
+        final SeekBar sk = (SeekBar) findViewById(R.id.sleepySeekBar);
+
+        sk.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                Toast.makeText(getApplicationContext(), String.valueOf(progress), Toast.LENGTH_LONG).show();
+                sleepyService.setSleepThreshold(progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
         Switch sb = (Switch) findViewById(R.id.switchSleepy);
-        stopService(intent);
         devicePolicyManager.removeActiveAdmin(componentName);
         Intent adminIntent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
         adminIntent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, componentName);
@@ -45,9 +72,9 @@ public class SleepyActivity extends AppCompatActivity{
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked){
-                    startService(intent);
+                    sleepyService.setEnable();
                 }else{
-                    stopService(intent);
+                    sleepyService.setUnable();
                 }
             }
         });
@@ -73,4 +100,18 @@ public class SleepyActivity extends AppCompatActivity{
 
         super.onActivityResult(requestCode, resultCode, data);
     }
+
+    private ServiceConnection sleepyConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            SleepyService.LocalBinder binder = (SleepyService.LocalBinder) service;
+            sleepyService = binder.getService();
+            isBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            isBound = false;
+        }
+    };
 }

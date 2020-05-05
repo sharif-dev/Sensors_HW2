@@ -6,6 +6,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
 
@@ -20,21 +21,44 @@ public class ShakyService extends Service implements SensorEventListener {
     boolean firstUpdate = true;
     boolean shakeInitiated = false;
 
-    float shakeThreshold = 12.5f;
+    float shakeThreshold = 5f;
 
     Sensor accelerometer;
     SensorManager sm;
 
+    private final IBinder connectBinder = new LocalBinder();
+
+    public class LocalBinder extends Binder{
+        ShakyService getService(){
+            return ShakyService.this;
+        }
+    }
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return connectBinder;
+    }
+
+    public void setEnable(){
+        enable = true;
+    }
+
+    public void setUnable(){
+        enable = false;
+    }
+
+    public boolean getEnable(){
+        return enable;
+    }
+
+    public void setShakeThreshold(int threshold){
+        shakeThreshold = 5f + threshold/5f;
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        enable = true;
         sm = (SensorManager) getSystemService(SENSOR_SERVICE);
         accelerometer = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
@@ -98,7 +122,6 @@ public class ShakyService extends Service implements SensorEventListener {
 
     @Override
     public void onDestroy() {
-        enable = false;
         super.onDestroy();
     }
 }
